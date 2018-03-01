@@ -196,7 +196,7 @@ class Tablero:
                         obstacles['left']=(False)
                 else:
                     obstacles['left']=(False)
-                if trainer.x < self.size:
+                if trainer.x < 9:
                     if (self.tablero[trainer.y][trainer.x + 1].name != 'Rock') and (self.tablero[trainer.y][trainer.x + 1].name != 'Van'):
                         obstacles['right']=(True)
                     else:
@@ -210,7 +210,7 @@ class Tablero:
                         obstacles['up']=(False)
                 else:
                     obstacles['up']=(False)
-                if trainer.y < self.size:
+                if trainer.y < 9:
                     if (self.tablero[trainer.y + 1][trainer.x].name != 'Rock') and (self.tablero[trainer.y + 1][trainer.x].name != 'Van'):
                         obstacles['down']=(True)
                     else:
@@ -261,28 +261,28 @@ class Tablero:
                 if isVanClose():
                     trainer.back = False
                 elif chooseBackWay() == 'right':
-                    rightMove()
+                    rightMove(True)
                 elif chooseBackWay() == 'left':
-                    leftMove()
+                    leftMove(True)
                 elif chooseBackWay() == 'down':
-                    downMove()
+                    downMove(True)
                 elif chooseBackWay() == 'up':
-                    upMove()
+                    upMove(True)
             
             try:
                 if trainer.back:
                     backToVan()
                 elif isPokemonClose() == 'right':
-                    rightMove()
+                    rightMove(True)
                     backToVan()
                 elif isPokemonClose() == 'left':
-                    leftMove()
+                    leftMove(True)
                     backToVan()
                 elif isPokemonClose() == 'down':
-                    downMove()
+                    downMove(True)
                     backToVan()
                 elif isPokemonClose() == 'up':
-                    upMove()
+                    upMove(True)
                     backToVan()
                 else:
                     way = chooseWay(wayWithoutObstacle())
@@ -297,6 +297,7 @@ class Tablero:
             except Exception as error:
                 print(error)
         Move(self.trainer)
+        Move(self.trainer2)
         self.window.after(500, self.findPokemon)
 
 
