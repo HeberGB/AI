@@ -61,15 +61,11 @@ class Bean:
             borderwidth='2',
             image=self.image
         )
-    def takeItToggle(self):
-        self.image = PhotoImage(file='images/jelly-bean.png')
-        self.label.configure(image=self.image)
-
 
 class Trainer:
     def __init__(self, i, j, container):
         self.name = 'Trainer'
-        self.image = PhotoImage(file='images/trainer.png')
+        self.image = PhotoImage(file='images/pokeball2.png')
         self.y = i
         self.x = j
         self.back = False
@@ -80,8 +76,6 @@ class Trainer:
             borderwidth='2',
             image=self.image
         )
-
-
 
 class Van:
     def __init__(self, i, j, container):
@@ -99,14 +93,13 @@ class Van:
 
 
 class Tablero:
-    def __init__(self, length):
+    def __init__(self, size):
         self.window = Tk()
         self.window.title('Pokemon Finder')
-        self.size = IntVar()
+        self.size = size
         self.tablero = []
-        self.trainer = Trainer(randint(0,9),randint(0,9), self.window)
-        self.trainer2 = Trainer(randint(0,9),randint(0,9), self.window)
-
+        self.trainer = Trainer(randint(0,self.size),randint(0,self.size), self.window)
+        
         for i in range(10):
             self.tablero.append([])
             for j in range(10):
@@ -178,11 +171,11 @@ class Tablero:
                 trainer.y -= 1
 
             def isPokemonClose():
-                if trainer.x < 9 and self.tablero[trainer.y][trainer.x+1].name == 'Pokemon':
+                if trainer.x < self.size - 1 and self.tablero[trainer.y][trainer.x+1].name == 'Pokemon':
                     return 'right'
                 elif trainer.x > 0 and self.tablero[trainer.y][trainer.x-1].name == 'Pokemon':
                     return 'left'
-                elif trainer.y < 9 and self.tablero[trainer.y + 1][trainer.x].name == 'Pokemon':
+                elif trainer.y < self.size - 1 and self.tablero[trainer.y + 1][trainer.x].name == 'Pokemon':
                     return 'down'
                 elif trainer.y > 0 and self.tablero[trainer.y - 1][trainer.x].name == 'Pokemon':
                     return 'up'
@@ -196,7 +189,7 @@ class Tablero:
                         obstacles['left']=(False)
                 else:
                     obstacles['left']=(False)
-                if trainer.x < self.size:
+                if trainer.x < self.size - 1:
                     if (self.tablero[trainer.y][trainer.x + 1].name != 'Rock') and (self.tablero[trainer.y][trainer.x + 1].name != 'Van'):
                         obstacles['right']=(True)
                     else:
@@ -210,7 +203,7 @@ class Tablero:
                         obstacles['up']=(False)
                 else:
                     obstacles['up']=(False)
-                if trainer.y < self.size:
+                if trainer.y < self.size - 1:
                     if (self.tablero[trainer.y + 1][trainer.x].name != 'Rock') and (self.tablero[trainer.y + 1][trainer.x].name != 'Van'):
                         obstacles['down']=(True)
                     else:
@@ -236,30 +229,30 @@ class Tablero:
 
                 def chooseBackWay():
                     min = abs(trainer.x + 1 - self.van.x) + abs(trainer.y - self.van.y)
-                    if (abs(trainer.x - 1 - self.van.x) + abs(trainer.y - self.van.y) < min) and wayWithoutObstacle()['left']:
+                    if (abs(trainer.x - 1 - self.van.x) + abs(trainer.y - self.van.y) < min) and wayWithoutObstacle()['left'] and isPokemonClose() != 'left':
                         return 'left'
-                    elif (abs(trainer.x - self.van.x) + abs(trainer.y + 1 - self.van.y) < min) and wayWithoutObstacle()['down']:
+                    elif (abs(trainer.x - self.van.x) + abs(trainer.y + 1 - self.van.y) < min) and wayWithoutObstacle()['down'] and isPokemonClose() != 'down':
                         return 'down'
-                    elif (abs(trainer.x - self.van.x) + abs(trainer.y - 1 - self.van.y) < min) and wayWithoutObstacle()['up']:
+                    elif (abs(trainer.x - self.van.x) + abs(trainer.y - 1 - self.van.y) < min) and wayWithoutObstacle()['up'] and isPokemonClose() != 'up':
                         return 'up'
-                    elif wayWithoutObstacle()['right']:
+                    elif wayWithoutObstacle()['right'] and isPokemonClose() != 'right':
                         return 'right'
                     else:
                         None
                 def isVanClose():
-                    if self.tablero[trainer.y][trainer.x+1].name == 'Van':
+                    if self.tablero[trainer.y][trainer.x+1].name == 'Van' and self.trainer.x < self.size - 1:
                         return True
-                    elif self.tablero[trainer.y][trainer.x-1].name == 'Van':
+                    elif self.tablero[trainer.y][trainer.x-1].name == 'Van' and self.trainer.x > 0:
                         return True
-                    elif self.tablero[trainer.y+1][trainer.x].name == 'Van':
+                    elif self.tablero[trainer.y+1][trainer.x].name == 'Van' and self.trainer.y < self.size - 1:
                         return True
-                    elif self.tablero[trainer.y-1][trainer.x].name == 'Van':
+                    elif self.tablero[trainer.y-1][trainer.x].name == 'Van' and self.trainer.y > 0:
                         return True
                     else:
                         False
-                trainer.back = True
+                pokemonGotcha(True)
                 if isVanClose():
-                    trainer.back = False
+                    pokemonGotcha(False)
                 elif chooseBackWay() == 'right':
                     rightMove()
                 elif chooseBackWay() == 'left':
@@ -268,40 +261,44 @@ class Tablero:
                     downMove()
                 elif chooseBackWay() == 'up':
                     upMove()
+            def pokemonGotcha(gotIt):
+                self.trainer.back = gotIt
+                self.trainer.image = PhotoImage(file='images/pokeball1.png')
+                self.trainer.label.config(image=self.trainer.image)
             
-            try:
-                if trainer.back:
-                    backToVan()
-                elif isPokemonClose() == 'right':
-                    rightMove()
-                    backToVan()
-                elif isPokemonClose() == 'left':
+            # try:
+            if trainer.back == True:
+                backToVan()
+            elif isPokemonClose() == 'right':
+                rightMove()
+                backToVan()
+            elif isPokemonClose() == 'left':
+                leftMove()
+                backToVan()
+            elif isPokemonClose() == 'down':
+                downMove()
+                backToVan()
+            elif isPokemonClose() == 'up':
+                upMove()
+                backToVan()
+            else:
+                way = chooseWay(wayWithoutObstacle())
+                if way == 'left':
                     leftMove()
-                    backToVan()
-                elif isPokemonClose() == 'down':
-                    downMove()
-                    backToVan()
-                elif isPokemonClose() == 'up':
+                elif way == 'right':
+                    rightMove()
+                elif way == 'up':
                     upMove()
-                    backToVan()
-                else:
-                    way = chooseWay(wayWithoutObstacle())
-                    if way == 'left':
-                        leftMove()
-                    elif way == 'right':
-                        rightMove()
-                    elif way == 'up':
-                        upMove()
-                    elif way == 'down':
-                        downMove()
-            except Exception as error:
-                print(error)
+                elif way == 'down':
+                    downMove()
+            # except Exception as error:
+            #     print(error)
         Move(self.trainer)
         self.window.after(500, self.findPokemon)
 
 
 def main():
-    tierra = Tablero('Pokemon Finder')
+    tierra = Tablero(10)
 
 
 # x = j | y = i
